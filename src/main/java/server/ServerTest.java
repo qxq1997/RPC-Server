@@ -1,10 +1,11 @@
 package server;
 
 import Impl.HelloServiceImpl;
-import Interface.HelloService;
-import Listener.RpcServer;
+import listener.RpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import registry.ServiceRegistry;
+import registry.ServiceRegistryImpl;
 
 /**
  * @author by QXQ
@@ -13,9 +14,10 @@ import org.slf4j.LoggerFactory;
 public class ServerTest {
     private static final Logger logger = LoggerFactory.getLogger(ServerTest.class);
     public static void main(String[] args) {
-        RpcServer server = new RpcServer();
-        server.register(new HelloServiceImpl(), 9000);
-        logger.info("server启动");
+        ServiceRegistry registry = new ServiceRegistryImpl();
+        registry.setService(new HelloServiceImpl());
+        RpcServer server = new RpcServer(registry);
+        server.start(9000);
     }
 
 }

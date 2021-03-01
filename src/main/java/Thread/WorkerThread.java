@@ -1,4 +1,4 @@
-package Thread;
+package thread;
 
 import entity.RpcRequest;
 import entity.RpcResponse;
@@ -6,42 +6,40 @@ import entity.RpcResponse;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
-import Enum.ResponseCode;
+import enums.ResponseCode;
+import handler.RequestHandler;
+
+import registry.ServiceRegistry;
 
 /**
  * @author by QXQ
  * @date 2021/2/28.
  */
 public class WorkerThread implements Runnable{
-    private Object service;
     private Socket socket;
+    private ServiceRegistry registry;
+    private RequestHandler requestHandler;
 
-    public WorkerThread(Socket socket, Object service) {
-        this.service = service;
+    public WorkerThread(Socket socket, ServiceRegistry registry, RequestHandler requestHandler) {
         this.socket = socket;
+        this.registry = registry;
+        this.requestHandler = requestHandler;
     }
-
-    public WorkerThread() {
-    }
-
     @Override
     public void run() {
         try(ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
         ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream())){
             RpcRequest rpcRequest = (RpcRequest)inputStream.readObject();
-            Method method = service.getClass().getMethod(rpcRequest.getMethod(),rpcRequest.getParamTypes());
-            String ans = (String) method.invoke(service, rpcRequest.getParameters());
-            RpcResponse response = new RpcResponse();
-            response.setData(ans);
-            response.setCode(ResponseCode.SUCCESS.getCode());
+            String serviceName = rpcRequest.getInterfaceName();
+            Object service = registry.getService(serviceName);
+            RpcResponse response = requestHandler.handle(rpcRequest, service);
             outputStream.writeObject(response);
             outputStream.flush();
         }
-        catch (InvocationTargetException | IllegalAccessException | IOException | ClassNotFoundException | NoSuchMethodException e){
+        catch ( IOException | ClassNotFoundException  e){
 
         }
     }
