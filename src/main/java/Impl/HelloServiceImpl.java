@@ -1,7 +1,7 @@
 package Impl;
 
+import common.entity.HelloObject;
 import interfaces.HelloService;
-import entity.HelloObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

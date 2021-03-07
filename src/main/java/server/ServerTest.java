@@ -1,11 +1,13 @@
 package server;
 
 import Impl.HelloServiceImpl;
-import listener.RpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import registry.ServiceRegistry;
 import registry.ServiceRegistryImpl;
+import transport.RpcServer;
+import transport.netty.NettyRpcServer;
+import transport.socket.SocketRpcServer;
 
 /**
  * @author by QXQ
@@ -16,8 +18,8 @@ public class ServerTest {
     public static void main(String[] args) {
         ServiceRegistry registry = new ServiceRegistryImpl();
         registry.setService(new HelloServiceImpl());
-        RpcServer server = new RpcServer(registry);
-        server.start(9000);
+        RpcServer server = new NettyRpcServer();
+        server.start(8385);
     }
 
 }
