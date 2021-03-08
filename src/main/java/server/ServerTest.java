@@ -1,13 +1,17 @@
 package server;
 
 import Impl.HelloServiceImpl;
+import interfaces.HelloService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import registry.ServiceRegistry;
 import registry.ServiceRegistryImpl;
+import registry.ZkServiceRegistry;
 import transport.RpcServer;
 import transport.netty.NettyRpcServer;
 import transport.socket.SocketRpcServer;
+
+import java.net.InetSocketAddress;
 
 /**
  * @author by QXQ
@@ -16,10 +20,10 @@ import transport.socket.SocketRpcServer;
 public class ServerTest {
     private static final Logger logger = LoggerFactory.getLogger(ServerTest.class);
     public static void main(String[] args) {
-        ServiceRegistry registry = new ServiceRegistryImpl();
-        registry.setService(new HelloServiceImpl());
-        RpcServer server = new NettyRpcServer();
-        server.start(8385);
+        ServiceRegistry registry = new ZkServiceRegistry();
+        registry.registerService(HelloServiceImpl.class.getCanonicalName(), new InetSocketAddress("127.0.0.1", 8385));
+        RpcServer server = new NettyRpcServer("127.0.0.1",8385);
+        server.publishService(new HelloServiceImpl(), HelloService.class);
     }
 
 }
